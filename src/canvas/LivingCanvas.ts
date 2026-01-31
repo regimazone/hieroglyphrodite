@@ -272,6 +272,11 @@ export function getLivingCanvas(): LivingCanvas {
   if (!canvasInstance) {
     canvasInstance = new LivingCanvas();
     canvasInstance.load(); // Load saved parameters
+    
+    // Expose for debugging in browser console
+    if (typeof window !== 'undefined') {
+      (window as any).__livingCanvas = canvasInstance;
+    }
   }
   return canvasInstance;
 }
