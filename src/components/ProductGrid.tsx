@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Eye } from 'lucide-react';
 import { ProductModal } from './ProductModal';
+import { AdaptiveAccent } from './AdaptiveComponents';
 const products = [
 {
   id: 1,
@@ -130,7 +131,9 @@ export function ProductGrid() {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Our Products
           </h2>
-          <div className="w-16 h-0.5 bg-[#41cde0] mx-auto mb-5"></div>
+          <AdaptiveAccent>
+            <div className="w-16 h-0.5 bg-current mx-auto mb-5"></div>
+          </AdaptiveAccent>
           <p className="text-white/50 max-w-xl mx-auto text-sm md:text-base">
             Discover our range of professional skincare solutions designed to
             transform your skin
