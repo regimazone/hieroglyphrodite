@@ -4,11 +4,12 @@ import { ProductGrid } from './ProductGrid';
 import { NewsSection } from './NewsSection';
 import { TestimonialCarousel } from './TestimonialCarousel';
 import { StatsSection } from './StatsSection';
+import { AdaptiveSection, AdaptiveAccent } from './AdaptiveComponents';
 export function MainContent() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="py-20 md:py-28">
+      <AdaptiveSection sectionName="hero" className="py-20 md:py-28">
         <div className="mx-auto max-w-[1170px] px-6">
           <div className="text-center max-w-3xl mx-auto">
             <motion.div
@@ -27,8 +28,8 @@ export function MainContent() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
                 RégimA
               </h1>
-              <p className="text-[#41cde0] text-base md:text-lg font-semibold tracking-widest uppercase mb-10">
-                Products That Change Lives
+              <p className="text-base md:text-lg font-semibold tracking-widest uppercase mb-10">
+                <AdaptiveAccent>Products That Change Lives</AdaptiveAccent>
               </p>
             </motion.div>
 
@@ -56,15 +57,15 @@ export function MainContent() {
                 Multiple award winning, RégimA's status is cemented as a skin
                 care leader in the world market. Ensuring actives are used at
                 maximum efficacy, RégimA is a cosmeceutical focusing not only on
-                <span className="text-[#41cde0] font-semibold">
+                <AdaptiveAccent className="font-semibold">
                   {' '}
                   AESTHETICS{' '}
-                </span>
+                </AdaptiveAccent>
                 but
-                <span className="text-[#41cde0] font-semibold">
+                <AdaptiveAccent className="font-semibold">
                   {' '}
                   SKIN HEALTH
-                </span>
+                </AdaptiveAccent>
                 .
               </p>
               <p className="text-white/60 text-sm md:text-base">
@@ -89,25 +90,33 @@ export function MainContent() {
               }}
               className="mt-10">
 
-              <div className="w-20 h-0.5 bg-[#41cde0] mx-auto"></div>
+              <AdaptiveAccent>
+                <div className="w-20 h-0.5 bg-current mx-auto"></div>
+              </AdaptiveAccent>
             </motion.div>
           </div>
         </div>
-      </section>
+      </AdaptiveSection>
 
       {/* Products Section */}
-      <section className="pb-20">
+      <AdaptiveSection sectionName="products" className="pb-20">
         <ProductGrid />
-      </section>
+      </AdaptiveSection>
 
       {/* News Section */}
-      <NewsSection />
+      <AdaptiveSection sectionName="news">
+        <NewsSection />
+      </AdaptiveSection>
 
       {/* Testimonials Section */}
-      <TestimonialCarousel />
+      <AdaptiveSection sectionName="testimonials">
+        <TestimonialCarousel />
+      </AdaptiveSection>
 
       {/* Stats Section */}
-      <StatsSection />
+      <AdaptiveSection sectionName="stats">
+        <StatsSection />
+      </AdaptiveSection>
     </div>);
 
 }
