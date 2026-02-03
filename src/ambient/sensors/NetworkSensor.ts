@@ -94,7 +94,12 @@ export class NetworkSensor implements ContextSensor<NetworkMetrics> {
         
         // Fetch a small resource to estimate latency
         // Use a cache-busting parameter to get fresh data
-        await fetch('/?_network_test=' + Date.now(), {
+        // In test environment, use absolute URL
+        const testUrl = typeof window !== 'undefined' && window.location 
+          ? window.location.origin + '/?_network_test=' + Date.now()
+          : 'http://localhost/?_network_test=' + Date.now();
+        
+        await fetch(testUrl, {
           method: 'HEAD',
           cache: 'no-cache'
         });
