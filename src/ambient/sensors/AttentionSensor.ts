@@ -20,16 +20,16 @@ export class AttentionSensor implements ContextSensor<AttentionMetrics> {
     scrollVelocity: 0,
   };
 
-  private available: boolean = false;
+  private available = false;
   private config: SensorConfig;
   
   // Tracking state
-  private lastInteractionTime: number = Date.now();
-  private lastScrollPosition: number = 0;
-  private lastScrollTime: number = Date.now();
+  private lastInteractionTime = Date.now();
+  private lastScrollPosition = 0;
+  private lastScrollTime = Date.now();
   private scrollEvents: Array<{ position: number; time: number }> = [];
-  private sessionStartTime: number = Date.now();
-  private interactionCount: number = 0;
+  private sessionStartTime = Date.now();
+  private interactionCount = 0;
 
   constructor(config: SensorConfig = {}) {
     this.config = {
@@ -142,7 +142,7 @@ export class AttentionSensor implements ContextSensor<AttentionMetrics> {
     // Combined fatigue metric (weighted average)
     this.metrics.fatigueLevel = 0.6 * timeFatigue + 0.4 * scrollFatigue;
     
-    if (this.config.debug && now % 5000 < this.config.updateInterval!) {
+    if (this.config.debug && this.config.updateInterval && now % 5000 < this.config.updateInterval) {
       console.log('[AttentionSensor] Metrics:', this.metrics);
     }
   }

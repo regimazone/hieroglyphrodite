@@ -19,8 +19,8 @@ export class NetworkSensor implements ContextSensor<NetworkMetrics> {
     saveData: false,
   };
 
-  private connection: any = null;
-  private available: boolean = false;
+  private connection: unknown = null;
+  private available = false;
   private config: SensorConfig;
 
   constructor(config: SensorConfig = {}) {
@@ -35,9 +35,8 @@ export class NetworkSensor implements ContextSensor<NetworkMetrics> {
   async initialize(): Promise<void> {
     try {
       // Check for Network Information API
-      this.connection = (navigator as any).connection || 
-                       (navigator as any).mozConnection || 
-                       (navigator as any).webkitConnection;
+      const nav = navigator as { connection?: unknown; mozConnection?: unknown; webkitConnection?: unknown };
+      this.connection = nav.connection || nav.mozConnection || nav.webkitConnection;
 
       if (this.connection) {
         this.updateNetworkMetrics();

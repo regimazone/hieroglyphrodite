@@ -1,9 +1,18 @@
 import { PatternFeatures, ContextualKeys } from '../embeddings/FeatureEncoders';
 import { AdaptiveFeatureNetwork } from '../embeddings/AdaptiveFeatureNetwork';
+import { 
+  SensorManager, 
+  ContextPredictor, 
+  AmbientContext,
+  EnhancedContextualKeys 
+} from '../ambient';
 
 /**
  * Living Canvas - Renders content with learnable adaptive features
  * Integrates with the ambient theme and dynamically responds to context
+ * 
+ * PHASE 1 ENHANCEMENT: Now includes ambient intelligence with multi-modal
+ * sensing and predictive context adaptation
  */
 export class LivingCanvas {
   private network: AdaptiveFeatureNetwork;
@@ -11,7 +20,13 @@ export class LivingCanvas {
   private animationFrameId: number | null = null;
   private observers: Set<(features: PatternFeatures) => void> = new Set();
 
-  constructor() {
+  // Phase 1: Ambient Intelligence
+  private sensorManager: SensorManager | null = null;
+  private contextPredictor: ContextPredictor | null = null;
+  private ambientEnabled = false;
+  private predictedPatternCache: Map<string, PatternFeatures> = new Map();
+
+  constructor(enableAmbient = true) {
     this.network = new AdaptiveFeatureNetwork(128);
     
     // Initialize with current context
@@ -19,6 +34,13 @@ export class LivingCanvas {
 
     // Set up context monitoring
     this.setupContextMonitoring();
+
+    // Initialize ambient intelligence if enabled
+    if (enableAmbient) {
+      this.setupAmbientIntelligence().catch(err => {
+        console.warn('[LivingCanvas] Ambient intelligence initialization failed:', err);
+      });
+    }
   }
 
   /**
@@ -83,6 +105,107 @@ export class LivingCanvas {
     setInterval(() => {
       this.updateContext({ timeOfDay: new Date().getHours() });
     }, 60000); // Every minute
+  }
+
+  /**
+   * PHASE 1: Set up ambient intelligence
+   */
+  private async setupAmbientIntelligence(): Promise<void> {
+    try {
+      // Initialize sensor manager
+      this.sensorManager = new SensorManager({ debug: false });
+      await this.sensorManager.initialize();
+
+      // Initialize context predictor
+      this.contextPredictor = new ContextPredictor({ debug: false });
+
+      // Update predictor with sensor data periodically
+      setInterval(() => {
+        if (this.sensorManager && this.contextPredictor) {
+          const ambientContext = this.sensorManager.getContext();
+          const enhancedContext = this.enrichContext(this.currentContext, ambientContext);
+          this.contextPredictor.recordContext(enhancedContext);
+        }
+      }, 1000);
+
+      this.ambientEnabled = true;
+      console.log('[LivingCanvas] Ambient intelligence enabled');
+    } catch (error) {
+      console.warn('[LivingCanvas] Could not initialize ambient intelligence:', error);
+      this.ambientEnabled = false;
+    }
+  }
+
+  /**
+   * PHASE 1: Enrich base context with ambient data
+   */
+  private enrichContext(
+    baseContext: ContextualKeys,
+    ambientContext: AmbientContext
+  ): EnhancedContextualKeys {
+    return {
+      ...baseContext,
+      ambientLight: ambientContext.ambientLight,
+      attentionScore: ambientContext.attention.focusScore,
+      cognitiveLoad: ambientContext.attention.cognitiveLoad,
+      fatigueLevel: ambientContext.attention.fatigueLevel,
+      networkQuality: ambientContext.network.effectiveType,
+    };
+  }
+
+  /**
+   * PHASE 1: Predict and prepare for future context
+   */
+  async prepareForFutureContext(horizonMs = 10000): Promise<void> {
+    if (!this.contextPredictor || !this.ambientEnabled) {
+      return;
+    }
+
+    const prediction = this.contextPredictor.predictContext(horizonMs);
+
+    if (prediction.confidence > 0.7) {
+      // Pre-compute adaptations for predicted context
+      const basePattern = this.getBasePattern();
+      
+      // Convert enhanced context to base context for network compatibility
+      const futureBaseContext: ContextualKeys = {
+        theme: prediction.context.theme,
+        timeOfDay: prediction.context.timeOfDay,
+        scrollPosition: prediction.context.scrollPosition,
+        viewportWidth: prediction.context.viewportWidth,
+        viewportHeight: prediction.context.viewportHeight,
+        userActivity: prediction.context.userActivity,
+        section: prediction.context.section,
+        interactionState: prediction.context.interactionState,
+      };
+      
+      const futurePattern = this.network.adaptPattern(basePattern, futureBaseContext);
+
+      // Cache for quick application
+      this.predictedPatternCache.set('future', futurePattern);
+      
+      if (prediction.confidence > 0.85) {
+        console.log('[LivingCanvas] High-confidence prediction cached', {
+          confidence: prediction.confidence,
+          horizon: horizonMs,
+        });
+      }
+    }
+  }
+
+  /**
+   * PHASE 1: Get ambient context status
+   */
+  getAmbientStatus(): {
+    enabled: boolean;
+    sensorStatus?: Record<string, boolean>;
+    predictorStats?: any;
+  } {
+    return {
+      enabled: this.ambientEnabled,
+      sensorStatus: this.sensorManager?.getSensorStatus(),
+      predictorStats: this.contextPredictor?.getStats(),
+    };
   }
 
   /**
@@ -260,6 +383,14 @@ export class LivingCanvas {
       cancelAnimationFrame(this.animationFrameId);
     }
     this.observers.clear();
+    
+    // Phase 1: Cleanup ambient intelligence
+    if (this.sensorManager) {
+      this.sensorManager.cleanup();
+      this.sensorManager = null;
+    }
+    this.contextPredictor = null;
+    this.predictedPatternCache.clear();
   }
 }
 

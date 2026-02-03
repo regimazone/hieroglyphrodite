@@ -12,9 +12,9 @@
 import { ContextSensor, SensorConfig } from '../types';
 
 export class AmbientLightSensor implements ContextSensor<number> {
-  private sensor: any | null = null;
-  private currentValue: number = 500; // Default: moderate indoor lighting
-  private available: boolean = false;
+  private sensor: { illuminance: number; start: () => Promise<void>; stop: () => void; addEventListener: (event: string, handler: (event?: unknown) => void) => void } | null = null;
+  private currentValue = 500; // Default: moderate indoor lighting
+  private available = false;
   private config: SensorConfig;
 
   constructor(config: SensorConfig = {}) {
@@ -30,27 +30,29 @@ export class AmbientLightSensor implements ContextSensor<number> {
     try {
       // Check if Ambient Light Sensor API is available
       if ('AmbientLightSensor' in window) {
-        const AmbientLightSensor = (window as any).AmbientLightSensor;
+        const AmbientLightSensorClass = (window as { AmbientLightSensor?: new (options: { frequency: number }) => unknown }).AmbientLightSensor;
         
-        this.sensor = new AmbientLightSensor({ frequency: 1 });
+        if (AmbientLightSensorClass) {
+          this.sensor = new AmbientLightSensorClass({ frequency: 1 });
         
-        this.sensor.addEventListener('reading', () => {
-          this.currentValue = this.sensor.illuminance;
+          this.sensor.addEventListener('reading', () => {
+            this.currentValue = this.sensor.illuminance;
+            if (this.config.debug) {
+              console.log(`[AmbientLightSensor] Reading: ${this.currentValue} lux`);
+            }
+          });
+
+          this.sensor.addEventListener('error', (event: ErrorEvent) => {
+            console.warn('[AmbientLightSensor] Error:', event.error);
+            this.fallbackToTimeBasedEstimation();
+          });
+
+          await this.sensor.start();
+          this.available = true;
+          
           if (this.config.debug) {
-            console.log(`[AmbientLightSensor] Reading: ${this.currentValue} lux`);
+            console.log('[AmbientLightSensor] Initialized successfully');
           }
-        });
-
-        this.sensor.addEventListener('error', (event: any) => {
-          console.warn('[AmbientLightSensor] Error:', event.error);
-          this.fallbackToTimeBasedEstimation();
-        });
-
-        await this.sensor.start();
-        this.available = true;
-        
-        if (this.config.debug) {
-          console.log('[AmbientLightSensor] Initialized successfully');
         }
       } else {
         throw new Error('Ambient Light Sensor API not available');
